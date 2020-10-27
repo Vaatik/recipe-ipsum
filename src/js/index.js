@@ -9,10 +9,13 @@ import {decimalToFraction, capitalizeChars} from './utils';
 import {clipboardManager} from './clipboardManager';
 
 const form = document.getElementById('generateRecipeForm');
+const customizeConfigBtn = document.getElementById('customizeConfigBtn');
+const config = document.getElementById('config');
 const nbIngredientsInput = document.getElementById('nbIngredients');
 const nbStepsInput = document.getElementById('nbSteps');
 const seriousModeInput = document.getElementById('seriousMode');
 
+const nameRenderElem = document.getElementById('nameRender');
 const ingredientsRenderElem = document.getElementById('ingredientsRender');
 const stepsRenderElem = document.getElementById('stepsRender');
 const recipeHeading = document.createElement('h1');
@@ -31,14 +34,12 @@ const generateRecipe = (event) => {
 
     const nbIngredients = parseInt(nbIngredientsInput.value, 10) || Math.floor((Math.random() * 10) + 1);
     const nbSteps = parseInt(nbStepsInput.value, 10) || Math.floor((Math.random() * 5) + 1);
-   
+
     const isSeriousMode = seriousModeInput.checked;
 
     const ingredients = generateIngredients(nbIngredients, isSeriousMode);
     const recipeName = generateRecipeName(ingredients);
     const steps = generateSteps(nbSteps, ingredients, isSeriousMode);
-
-    recipeHeading.innerHTML = recipeName;
 
     ingredients.forEach(ingredient => {
         ingredientsHtmlList.innerHTML += `<li>${ingredient.amount} of ${ingredient.ingredient.name}</li>`;
@@ -48,7 +49,13 @@ const generateRecipe = (event) => {
         stepsHtmlList.innerHTML += `<li><span>${i + 1}.<span> ${steps[i]}</li>`;
     }
 
-    document.querySelector('.recipe').prepend(recipeHeading);
+    if (recipeName === '') {
+        nameRenderElem.classList.add('hidden');
+    } else {
+        nameRenderElem.classList.remove('hidden');
+        nameRenderElem.querySelector('h2').innerHTML = recipeName;
+    }
+
     ingredientsRenderElem.appendChild(ingredientsHtmlList);
     stepsRenderElem.appendChild(stepsHtmlList);
     document.querySelector('.recipe').classList.remove('hidden');
@@ -131,7 +138,7 @@ const generateMeasurement = measurement => {
     if (Math.floor(Math.random() * 2) === 0) {
         newMeasurement = measurement === 0 ? randomInt : fraction;
     } else {
-        newMeasurement = measurement === 0 ? randomInt  : `${randomInt.toString()} ${fraction}`;
+        newMeasurement = measurement === 0 ? randomInt  : `${randomInt.toString()} <sup>${fraction}</sup>`;
     }
 
     return newMeasurement;
@@ -253,3 +260,6 @@ const checkForDuplicates = () => {
 checkForDuplicates();
 clipboardManager();
 form.addEventListener('submit', generateRecipe);
+customizeConfigBtn.addEventListener('click', () => {
+    config.classList.toggle('hidden');
+});
